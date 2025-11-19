@@ -1,0 +1,217 @@
+ОДНОСВЯЗНЫЙ СПИСОК (LinkedList)
+
+ОСНОВНЫЕ ОПЕРАЦИИ:
+• addFirst(T element) - добавление в начало
+• addLast(T element) - добавление в конец  
+• insert(int index, T element) - вставка по индексу
+• removeFirst() - удаление из начала
+• removeLast() - удаление из конца
+• remove(int index) - удаление по индексу
+• get(int index) - доступ по индексу
+• set(int index, T element) - изменение элемента
+• indexOf(T element) - поиск индекса элемента
+• contains(T element) - проверка наличия
+• clear() - очистка списка
+• size() - получение размера
+• isEmpty() - проверка на пустоту
+
+РЕАЛИЗАЦИЯ:
+class LinkedList<T> {
+    private Node<T> head;   // первый узел списка
+    private Node<T> tail;   // последний узел списка
+    private int size;       // количество элементов
+
+    private static class Node<T> {
+        T data;            // данные узла
+        Node<T> next;      // ссылка на следующий узел
+        
+        Node(T data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
+
+СЛОЖНОСТЬ ОПЕРАЦИЙ:
+┌───────────────┬───────────┬──────────┐
+│ Операция      │ Время     │ Память   │
+├───────────────┼───────────┼──────────┤
+│ addFirst()    │ O(1)      │ O(1)     │
+│ addLast()     │ O(1)      │ O(1)     │
+│ insert()      │ O(index)  │ O(1)     │
+│ removeFirst() │ O(1)      │ O(1)     │
+│ removeLast()  │ O(n)      │ O(1)     │
+│ remove(index) │ O(index)  │ O(1)     │
+│ get()         │ O(index)  │ O(1)     │
+│ set()         │ O(index)  │ O(1)     │
+│ indexOf()     │ O(n)      │ O(1)     │
+│ contains()    │ O(n)      │ O(1)     │
+│ clear()       │ O(n)      │ O(1)     │
+│ size()        │ O(1)      │ O(1)     │
+│ isEmpty()     │ O(1)      │ O(1)     │
+└───────────────┴───────────┴──────────┘
+
+ДЕТАЛИ РЕАЛИЗАЦИИ:
+
+ДОБАВЛЕНИЕ В НАЧАЛО (addFirst):
+public void addFirst(T element) {
+    Node<T> newNode = new Node<>(element);
+    if (head == null) {
+        head = tail = newNode;
+    } else {
+        newNode.next = head;
+        head = newNode;
+    }
+    size++;
+}
+
+ДОБАВЛЕНИЕ В КОНЕЦ (addLast):
+public void addLast(T element) {
+    Node<T> newNode = new Node<>(element);
+    if (tail == null) {
+        head = tail = newNode;
+    } else {
+        tail.next = newNode;
+        tail = newNode;
+    }
+    size++;
+}
+
+ВСТАВКА ПО ИНДЕКСУ (insert):
+public void insert(int index, T element) {
+    if (index < 0 || index > size) {
+        throw new IndexOutOfBoundsException();
+    }
+    if (index == 0) {
+        addFirst(element);
+    } else if (index == size) {
+        addLast(element);
+    } else {
+        Node<T> current = head;
+        for (int i = 0; i < index - 1; i++) {
+            current = current.next;
+        }
+        Node<T> newNode = new Node<>(element);
+        newNode.next = current.next;
+        current.next = newNode;
+        size++;
+    }
+}
+
+УДАЛЕНИЕ ИЗ НАЧАЛА (removeFirst):
+public T removeFirst() {
+    if (head == null) {
+        throw new NoSuchElementException();
+    }
+    T data = head.data;
+    head = head.next;
+    if (head == null) {
+        tail = null;
+    }
+    size--;
+    return data;
+}
+
+УДАЛЕНИЕ ИЗ КОНЦА (removeLast):
+public T removeLast() {
+    if (tail == null) {
+        throw new NoSuchElementException();
+    }
+    if (head == tail) {
+        return removeFirst();
+    }
+    Node<T> current = head;
+    while (current.next != tail) {
+        current = current.next;
+    }
+    T data = tail.data;
+    current.next = null;
+    tail = current;
+    size--;
+    return data;
+}
+
+ПОЛУЧЕНИЕ ЭЛЕМЕНТА (get):
+public T get(int index) {
+    if (index < 0 || index >= size) {
+        throw new IndexOutOfBoundsException();
+    }
+    Node<T> current = head;
+    for (int i = 0; i < index; i++) {
+        current = current.next;
+    }
+    return current.data;
+}
+
+ПОИСК ЭЛЕМЕНТА (indexOf):
+public int indexOf(T element) {
+    Node<T> current = head;
+    int index = 0;
+    while (current != null) {
+        if (Objects.equals(current.data, element)) {
+            return index;
+        }
+        current = current.next;
+        index++;
+    }
+    return -1;
+}
+
+ИТЕРАТОР:
+private class LinkedListIterator implements Iterator<T> {
+    private Node<T> current = head;
+    
+    public boolean hasNext() {
+        return current != null;
+    }
+    
+    public T next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        T data = current.data;
+        current = current.next;
+        return data;
+    }
+}
+
+ПРЕИМУЩЕСТВА:
+• Динамический размер - растет по мере необходимости
+• Быстрое добавление в начало O(1)
+• Быстрое добавление в конец O(1) (с tail)
+• Эффективное удаление из начала O(1)
+• Не требует непрерывной памяти как массив
+
+НЕДОСТАТКИ:
+• Медленный доступ по индексу O(n)
+• Медленное удаление из конца O(n)
+• Больше памяти на узел (данные + ссылка)
+• Только однонаправленное движение
+
+ОСОБЕННОСТИ:
+• Хранение tail позволяет O(1) добавление в конец
+• Удаление из конца требует поиска предпоследнего узла O(n)
+• Для доступа к элементу по индексу требуется пройти все предыдущие узлы
+
+СРАВНЕНИЕ С ДРУГИМИ СТРУКТУРАМИ:
+vs DynamicArray:
+  + Быстрее добавление в начало
+  + Не требует копирования при расширении
+  - Медленнее доступ по индексу
+  - Больше расход памяти
+
+vs Двусвязный список:
+  + Меньше памяти на узел
+  - Нет обратного обхода
+  - Медленнее удаление из конца
+
+ОБЛАСТИ ПРИМЕНЕНИЯ:
+• Реализация стеков и очередей
+• Списки с частыми операциями в начале
+• Когда количество элементов неизвестно заранее
+• Алгоритмы с последовательным доступом
+• Системы с ограниченной фрагментированной памятью
+
+ПАМЯТЬ:
+• На каждый узел: данные + ссылка next (8 байт в 64-бит JVM)
+• Дополнительно: head, tail, size (24+ байта)
+• Общая: O(n) где n - количество элементов
